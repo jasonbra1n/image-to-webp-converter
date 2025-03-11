@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to WebP Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .container {
+            text-align: center;
+        }
+        #preview, #result {
+            margin: 20px 0;
+            max-width: 100%;
+        }
+        img {
+            max-width: 400px;
+            height: auto;
+            border: 1px solid #ddd;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #downloadBtn {
+            display: none;
+            margin-top: 10px;
+        }
+        #error {
+            color: red;
+            display: none;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image to WebP Converter</h1>
+        <input type="file" id="imageInput" accept="image/jpeg,image/png">
+        <div id="preview"></div>
+        <button onclick="convertToWebp()">Convert to WebP</button>
+        <div id="error"></div>
+        <div id="result"></div>
+        <button id="downloadBtn" onclick="downloadImage()">Download WebP</button>
+    </div>
+
+    <script>
+        let originalFileName = '';
+        let webpDataUrl = '';
+
+        // Preview selected image
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
+                originalFileName = file.name.split('.').slice(0, -1).join('.');
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = function() {
+                        document.getElementById('preview').innerHTML = '';
+                        document.getElementById('preview').appendChild(img);
+                        console.log('Image loaded successfully');
+                    };
+                    img.onerror = function() {
+                        showError('Error loading image');
+                    };
+                };
+                reader.readAsDataURL(file);
+            } else {
+                showError('Please select a JPG or PNG image');
+            }
+        });
+
+        // Convert to WebP
+        function convertToWebp() {
+            try {
+                const input = document.getElementById('imageInput');
+                const file = input.files[0];
+                
+                if (!file) {
+                    showError('Please select an image first!');
+                    return;
+                }
+
+                const img = document.querySelector('#preview img');
+                if (!img) {
+                    showError('No preview image found');
+                    return;
+                }
+
+                console.log('Starting conversion...');
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                
+                if (!ctx) {
+                    showError('Canvas context not supported');
+                    return;
+                }
+
+                ctx.drawImage(img, 0, 0);
+                webpDataUrl = canvas.toDataURL('image/webp', 0.8);
+                console.log('Conversion completed');
+
+                const webpImg = new Image();
+                webpImg.src = webpDataUrl;
+                webpImg.onload = function() {
+                    const resultDiv = document.getElementById('result');
+                    resultDiv.innerHTML = '<h3>Converted WebP Image:</h3>';
+                    resultDiv.appendChild(webpImg);
+                    document.getElementById('downloadBtn').style.display = 'block';
+                    console.log('Result displayed');
+                };
+                webpImg.onerror = function() {
+                    showError('Error displaying converted image');
+                };
+            } catch (error) {
+                showError('Conversion error: ' + error.message);
+                console.error('Conversion error:', error);
+            }
+        }
+
+        // Download the WebP image
+        function downloadImage() {
+            if (!webpDataUrl) {
+                showError('No converted image available');
+                return;
+            }
+            const link = document.createElement('a');
+            link.href = webpDataUrl;
+            link.download = `${originalFileName || 'converted'}.webp`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = message;
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
