@@ -198,13 +198,11 @@
                     const webpBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', 0.8));
                     const webpSize = webpBlob.size;
                     const webpUrl = URL.createObjectURL(webpBlob);
-                    const name = imgData.name.split('.').slice(0, -1).join('.') + '.webp';
-
-                    // Check for duplicate names and append a counter if needed
-                    let uniqueName = name;
+                    const baseName = imgData.name.split('.').slice(0, -1).join('.');
+                    let uniqueName = `${baseName}.webp`;
                     let counter = 1;
                     while (convertedImages.some(img => img.name === uniqueName)) {
-                        uniqueName = `${name.split('.webp')[0]}_${counter}.webp`;
+                        uniqueName = `${baseName}_${counter}.webp`;
                         counter++;
                     }
 
@@ -237,17 +235,19 @@
                     <p>Original: ${formatSize(originalSize)}</p>
                     <p>WebP: ${formatSize(size)} (<span style="color: ${color};">${sizeDiff}%</span>)</p>
                 </div>
-                <button class="card-download-btn" onclick="downloadSingleImage('${name}', this)">Download</button>
+                <button class="card-download-btn" onclick="downloadSingleImage('${name}', '${src}')">Download</button>
             `;
-            card.dataset.blob = blob; // Store blob reference
             return card;
         }
 
-        function downloadSingleImage(name, button) {
-            const card = button.closest('.image-card');
-            const blob = card.dataset.blob;
+        function downloadSingleImage(name, src) {
+            const image = convertedImages.find(img => img.name === name);
+            if (!image) {
+                showError('Image not found for download');
+                return;
+            }
             const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
+            link.href = image.url; // Use the pre-generated URL
             link.download = name;
             document.body.appendChild(link);
             link.click();
@@ -262,7 +262,7 @@
         }
 
         function clearAll() {
-            convertedImages.forEach(img => URL.revokeObjectURL(img.url)); // Clean up object URLs
+            convertedImages.forEach(img => URL.revokeObjectURL(img.url));
             convertedImages = [];
             zip = new JSZip();
             window.currentZip = zip;
