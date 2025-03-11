@@ -72,22 +72,31 @@
             font-weight: bold;
         }
         button {
-            padding: 12px 24px;
+            padding: 10px 20px;
             background-color: var(--primary-color);
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 0.9em;
             transition: background-color 0.3s ease;
-            justify-self: center;
         }
         button:hover {
             background-color: var(--secondary-color);
         }
-        #downloadAllBtn {
-            display: none;
+        .card-download-btn {
+            margin-top: 10px;
+            width: 100%;
+        }
+        #actionButtons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
             margin-top: 20px;
+        }
+        #downloadAllBtn, #clearAllBtn {
+            padding: 12px 24px;
+            display: none;
         }
         #error {
             color: red;
@@ -109,7 +118,10 @@
             #dropZone {
                 padding: 20px;
             }
-            button {
+            #actionButtons {
+                flex-direction: column;
+            }
+            #downloadAllBtn, #clearAllBtn {
                 width: 100%;
             }
         }
@@ -123,7 +135,10 @@
         <div id="error"></div>
         <div id="loading">Converting images... Please wait.</div>
         <div id="result"></div>
-        <button id="downloadAllBtn" onclick="downloadAllAsZip()">Download All as ZIP</button>
+        <div id="actionButtons">
+            <button id="downloadAllBtn" onclick="downloadAllAsZip()">Download All as ZIP</button>
+            <button id="clearAllBtn" onclick="clearAll()">Clear All</button>
+        </div>
     </div>
 
     <script>
@@ -131,8 +146,10 @@
         const imageInput = document.getElementById('imageInput');
         const resultDiv = document.getElementById('result');
         const loadingDiv = document.getElementById('loading');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
         let convertedImages = [];
-        const zip = new JSZip();
+        let zip = new JSZip();
 
         // Drag and drop events
         dropZone.addEventListener('dragover', (e) => {
@@ -157,8 +174,6 @@
             }
 
             loadingDiv.style.display = 'block';
-            convertedImages = [];
-            resultDiv.innerHTML = '';
 
             for (const file of Array.from(files)) {
                 if (file.type !== 'image/jpeg' && file.type !== 'image/png') continue;
@@ -183,12 +198,18 @@
                     const webpBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', 0.8));
                     const webpSize = webpBlob.size;
                     const webpUrl = URL.createObjectURL(webpBlob);
-                    const name = imgData.name.split('.').slice(0, -1).join('.') + '.webp';
+                    const baseName = imgData.name.split('.').slice(0, -1).join('.');
+                    let uniqueName = `${baseName}.webp`;
+                    let counter = 1;
+                    while (convertedImages.some(img => img.name === uniqueName)) {
+                        uniqueName = `${baseName}_${counter}.webp`;
+                        counter++;
+                    }
 
-                    zip.file(name, webpBlob);
-                    const card = createImageCard(name, webpUrl, webpSize, imgData.originalSize);
+                    zip.file(uniqueName, webpBlob);
+                    const card = createImageCard(uniqueName, webpUrl, webpSize, imgData.originalSize, webpBlob);
                     resultDiv.appendChild(card);
-                    convertedImages.push({ blob: webpBlob, name });
+                    convertedImages.push({ blob: webpBlob, name: uniqueName, url: webpUrl });
                 } catch (error) {
                     showError(`Error converting ${file.name}: ${error.message}`);
                 }
@@ -196,12 +217,13 @@
 
             loadingDiv.style.display = 'none';
             if (convertedImages.length > 0) {
-                document.getElementById('downloadAllBtn').style.display = 'block';
+                downloadAllBtn.style.display = 'block';
+                clearAllBtn.style.display = 'block';
             }
             window.currentZip = zip;
         }
 
-        function createImageCard(name, src, size, originalSize) {
+        function createImageCard(name, src, size, originalSize, blob) {
             const card = document.createElement('div');
             card.className = 'image-card';
             const sizeDiff = ((size - originalSize) / originalSize * 100).toFixed(1);
@@ -213,8 +235,23 @@
                     <p>Original: ${formatSize(originalSize)}</p>
                     <p>WebP: ${formatSize(size)} (<span style="color: ${color};">${sizeDiff}%</span>)</p>
                 </div>
+                <button class="card-download-btn" onclick="downloadSingleImage('${name}', '${src}')">Download</button>
             `;
             return card;
+        }
+
+        function downloadSingleImage(name, src) {
+            const image = convertedImages.find(img => img.name === name);
+            if (!image) {
+                showError('Image not found for download');
+                return;
+            }
+            const link = document.createElement('a');
+            link.href = image.url; // Use the pre-generated URL
+            link.download = name;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function downloadAllAsZip() {
@@ -222,6 +259,16 @@
             window.currentZip.generateAsync({ type: 'blob' }).then(blob => {
                 saveAs(blob, 'webp_images.zip');
             });
+        }
+
+        function clearAll() {
+            convertedImages.forEach(img => URL.revokeObjectURL(img.url));
+            convertedImages = [];
+            zip = new JSZip();
+            window.currentZip = zip;
+            resultDiv.innerHTML = '';
+            downloadAllBtn.style.display = 'none';
+            clearAllBtn.style.display = 'none';
         }
 
         function formatSize(bytes) {
