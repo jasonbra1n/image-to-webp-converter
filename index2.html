@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Image to WebP Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .container {
+            text-align: center;
+        }
+        #dropZone {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f9f9f9;
+        }
+        #dropZone.dragover {
+            background: #e1e1e1;
+            border-color: #4CAF50;
+        }
+        #preview, #result {
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .image-container {
+            border: 1px solid #ddd;
+            padding: 10px;
+            max-width: 300px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #downloadAllBtn {
+            display: none;
+        }
+        #error {
+            color: red;
+            display: none;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Multi-Image to WebP Converter</h1>
+        <input type="file" id="imageInput" accept="image/jpeg,image/png" multiple style="display: none;">
+        <div id="dropZone">Drag images here or click to select</div>
+        <button onclick="convertToWebp()">Convert to WebP</button>
+        <div id="error"></div>
+        <div id="preview"></div>
+        <div id="result"></div>
+        <button id="downloadAllBtn" onclick="downloadAllAsZip()">Download All as ZIP</button>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const imageInput = document.getElementById('imageInput');
+        let imageData = [];
+
+        // Drag and drop events
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+        dropZone.addEventListener('click', () => imageInput.click());
+
+        imageInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+        function handleFiles(files) {
+            imageData = [];
+            document.getElementById('preview').innerHTML = '';
+            Array.from(files).forEach(file => {
+                if (file.type === 'image/jpeg' || file.type === 'image/png') {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = function() {
+                            const container = document.createElement('div');
+                            container.className = 'image-container';
+                            container.innerHTML = `<p>${file.name} (${formatSize(file.size)})</p>`;
+                            container.appendChild(img);
+                            document.getElementById('preview').appendChild(container);
+                            imageData.push({ file, img, name: file.name, originalSize: file.size });
+                        };
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function convertToWebp() {
+            if (imageData.length === 0) {
+                showError('Please add images first!');
+                return;
+            }
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+            const zip = new JSZip();
+
+            Promise.all(imageData.map(async (data, index) => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = data.img.naturalWidth;
+                    canvas.height = data.img.naturalHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(data.img, 0, 0);
+                    
+                    const webpBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', 0.8));
+                    const webpSize = webpBlob.size;
+                    const webpUrl = URL.createObjectURL(webpBlob);
+                    
+                    const name = data.name.split('.').slice(0, -1).join('.') + '.webp';
+                    zip.file(name, webpBlob);
+
+                    const container = document.createElement('div');
+                    container.className = 'image-container';
+                    container.innerHTML = `
+                        <p>${name}</p>
+                        <p>Original: ${formatSize(data.originalSize)}</p>
+                        <p>WebP: ${formatSize(webpSize)}</p>
+                        <img src="${webpUrl}">
+                    `;
+                    resultDiv.appendChild(container);
+                    
+                    return { blob: webpBlob, name };
+                } catch (error) {
+                    showError(`Error converting ${data.name}: ${error.message}`);
+                }
+            })).then(() => {
+                document.getElementById('downloadAllBtn').style.display = 'block';
+                window.currentZip = zip; // Store zip for download
+            });
+        }
+
+        function downloadAllAsZip() {
+            if (!window.currentZip) return;
+            window.currentZip.generateAsync({ type: 'blob' }).then(blob => {
+                saveAs(blob, 'webp_images.zip');
+            });
+        }
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = message;
+            setTimeout(() => errorDiv.style.display = 'none', 5000);
+        }
+    </script>
+</body>
+</html>
