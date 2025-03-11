@@ -39,7 +39,6 @@ You can embed this calculator into your own webpage using an iframe. Copy the co
 
 ## Usage
 - Select a JPG or PNG image using the file input.
-- Click the "Convert" button to convert the image to WebP format.
 - Preview the original and converted images.
 - Download the WebP image using the provided button.
 
