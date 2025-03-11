@@ -2,7 +2,7 @@
 
 A lightweight, client-side image converter built with HTML, CSS, and JavaScript. This tool converts JPG/PNG images to WebP format without the need for server uploads, featuring a clean design, image preview, and download functionality.
 
-![Converter Screenshot](https://jasonbra1n.github.io/image-to-webp-converter/img/converter_screenshot.webp)  
+![Converter Screenshot](https://jasonbra1n.github.io/image-to-webp-converter/img/screenshot.webp)  
 
 ## Live Demo
 
