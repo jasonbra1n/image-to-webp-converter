@@ -1,0 +1,118 @@
+ :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #45a049;
+            --background-color: #f9f9f9;
+            --text-color: #333;
+            --border-color: #ddd;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        #dropZone {
+            border: 2px dashed var(--border-color);
+            padding: 40px;
+            text-align: center;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+        #dropZone.dragover {
+            background: #e1e1e1;
+            border-color: var(--primary-color);
+        }
+        #result {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .image-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .image-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .image-info {
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        .size-comparison {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+        .card-download-btn {
+            margin-top: 10px;
+            width: 100%;
+        }
+        #actionButtons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        #downloadAllBtn, #clearAllBtn {
+            padding: 12px 24px;
+            display: none;
+        }
+        #error {
+            color: red;
+            text-align: center;
+            display: none;
+            margin: 10px 0;
+        }
+        #loading {
+            display: none;
+            text-align: center;
+            font-size: 1.2em;
+            color: var(--primary-color);
+            margin: 20px 0;
+        }
+        @media (max-width: 768px) {
+            #result {
+                grid-template-columns: 1fr;
+            }
+            #dropZone {
+                padding: 20px;
+            }
+            #actionButtons {
+                flex-direction: column;
+            }
+            #downloadAllBtn, #clearAllBtn {
+                width: 100%;
+            }
+        }
