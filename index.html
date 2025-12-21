@@ -3,22 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto Image to WebP Converter</title>
+    <title>Responsive Image & WebP Converter | srcset Generator</title>
+    <meta name="description" content="A free, client-side tool to convert JPG/PNG images to multiple WebP sizes. Easily generate responsive images for HTML srcset attributes and improve website performance.">
+    <meta name="keywords" content="webp converter, srcset generator, responsive images, image optimization, picture element, html, web development tool, core web vitals, performance">
+    <link rel="canonical" href="https://jasonbra1n.github.io/image-to-webp-converter/" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <link rel="stylesheet" href="styles.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Responsive Image & WebP Converter",
+      "operatingSystem": "Web",
+      "applicationCategory": "DeveloperApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0"
+      },
+      "description": "A free, client-side tool to convert JPG/PNG images to multiple WebP sizes. Easily generate responsive images for HTML srcset attributes and improve website performance.",
+      "url": "https://jasonbra1n.github.io/image-to-webp-converter/"
+    }
+    </script>
 </head>
 <body>
     <div class="container">
-        <h1>Auto Image to WebP Converter</h1>
+        <h1>Responsive Image & WebP Converter</h1>
+        <p style="text-align: center; margin-top: -15px; margin-bottom: 20px;">Generate multiple WebP sizes for your `srcset` attributes and improve site performance.</p>
+
+        <div class="settings-container">
+            <h4>Settings</h4>
+            <div class="settings-grid">
+                <div class="size-options">
+                    <label><strong>Output Sizes (Width):</strong></label>
+                    <label><input type="checkbox" id="size480" value="480" checked> 480px (Mobile)</label>
+                    <label><input type="checkbox" id="size800" value="800" checked> 800px (Tablet/Card)</label>
+                    <label><input type="checkbox" id="size1200" value="1200" checked> 1200px (Desktop)</label>
+                </div>
+                <div class="quality-slider">
+                    <label for="quality"><strong>WebP Quality:</strong> <span id="qualityValue">80</span>%</label>
+                    <input type="range" id="quality" min="10" max="100" value="80">
+                </div>
+            </div>
+        </div>
+
         <input type="file" id="imageInput" accept="image/jpeg,image/png" multiple style="display: none;">
         <div id="dropZone">Drag images here or click to select</div>
         <div id="error"></div>
         <div id="loading">Converting images... Please wait.</div>
         <div id="result"></div>
         <div id="actionButtons">
-            <button id="downloadAllBtn" onclick="downloadAllAsZip()">Download All as ZIP</button>
+            <button id="downloadAllBtn" onclick="downloadAllAsZip()">Download All as ZIP</button> 
             <button id="clearAllBtn" onclick="clearAll()">Clear All</button>
+        </div>
+
+        <div class="seo-content-box">
+            <h2>Improve Your Site's Performance with Responsive Images</h2>
+            <p>Serving a single, large image to all users is inefficient. Mobile users on slow connections are forced to download unnecessarily large files, while high-resolution desktop users might see a blurry image. This is where the `srcset` attribute comes in.</p>
+            <p>By providing the browser with multiple image sizes, you allow it to choose the most optimal version based on the user's screen size and resolution. This tool automates the tedious process of resizing and converting your source images into multiple WebP files, ready to be used in your HTML.</p>
+            <h3>Example `srcset` Usage:</h3>
+            <pre><code>&lt;img src="image-800.webp"
+     srcset="image-480.webp 480w,
+             image-800.webp 800w,
+             image-1200.webp 1200w"
+     sizes="(max-width: 600px) 100vw, 50vw"
+     alt="A descriptive alt text."&gt;</code></pre>
+            <p>This approach significantly improves your <a href="https://web.dev/vitals/" target="_blank" rel="noopener noreferrer">Core Web Vitals</a>, leading to better user experience and higher search engine rankings.</p>
         </div>
     </div>
 

@@ -1,6 +1,6 @@
 # Image to WebP Converter
 
-A lightweight, client-side tool built with HTML, CSS, and JavaScript that instantly converts JPG/PNG images to WebP format. Featuring a sleek, responsive design, this converter processes images in-browser—no server uploads required—offering privacy, speed, and flexibility.
+A powerful, client-side tool that converts JPG/PNG images into multiple, responsive-ready WebP formats. Built with a focus on workflow efficiency and SEO best practices, this tool allows you to generate different sizes for `srcset` implementation from a single source image, all within your browser.
 
 ![Converter Screenshot](https://jasonbra1n.github.io/image-to-webp-converter/img/screenshot.webp)
 
@@ -10,13 +10,13 @@ Try it out here: [https://jasonbra1n.github.io/image-to-webp-converter/](https:/
 
 ## Features
 
-- **Automatic Conversion**: Images are converted to WebP as soon as they’re uploaded—no extra clicks needed.
+- **Responsive Size Generation**: Automatically generates multiple widths (e.g., 480px, 800px, 1200px) for perfect `srcset` implementation.
+- **Adjustable Quality**: Fine-tune file size vs. visual fidelity with a real-time quality slider.
+- **SEO & Performance Focused**: Includes educational resources on improving Core Web Vitals with responsive images.
 - **Multi-Image Support**: Process one or many images via drag-and-drop or file selection.
 - **Client-Side Processing**: All conversions happen in the browser, ensuring privacy and eliminating server dependency.
-- **Size Comparison**: Displays original and WebP file sizes with percentage change for each image.
-- **Flexible Downloads**: Download individual WebP files or all images as a ZIP archive.
-- **Responsive Design**: Adapts seamlessly to any screen size, from mobile to desktop.
-- **Quality Control**: Uses a default quality setting of 0.8 (adjustable in code) for WebP output.
+- **Grouped Output**: Generated images are neatly grouped by their original source file.
+- **Flexible Downloads**: Download individual files or a complete ZIP archive.
 
 ## Installation
 
@@ -50,16 +50,14 @@ Embed this converter in your webpage with an iframe:
 - **Customization**: Fork the repo to tweak styles, quality settings, or add features.
 
 ## Usage
-1. Drag JPG/PNG images into the drop zone or click to select files.
-2. Watch as WebP images are generated instantly, with size comparisons displayed.
-3. Download individual files using card buttons or all images as a ZIP with the "Download All" button.
-4. Clear everything with the "Clear All" button to start fresh.
+1. **Configure Settings**: Select your target output widths and adjust the quality slider.
+2. **Upload Images**: Drag JPG/PNG images into the drop zone or click to select files.
+3. **Review Results**: Watch as multiple WebP versions are generated for each source image.
+4. **Download**: Download individual files or click "Download All as ZIP" to get a complete archive.
+5. **Clear**: Use the "Clear All" button to start fresh.
 
 ## Contributing
-Contributions are welcome! Submit issues or pull requests with ideas like:
-- Support for additional image formats (e.g., GIF, BMP).
-- Progress indicators for large batches.
-- Custom quality sliders or settings UI.
+Contributions are welcome! Check out the CONTRIBUTING.md file for guidelines and the ROADMAP.md for planned features.
 
 ## License
 This project is licensed under the MIT License—see the [LICENSE](https://github.com/jasonbra1n/image-to-webp-converter/blob/main/LICENSE) file for details.

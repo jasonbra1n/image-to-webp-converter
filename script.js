@@ -4,6 +4,12 @@ const dropZone = document.getElementById('dropZone');
         const loadingDiv = document.getElementById('loading');
         const downloadAllBtn = document.getElementById('downloadAllBtn');
         const clearAllBtn = document.getElementById('clearAllBtn');
+
+        // Settings
+        const qualitySlider = document.getElementById('quality');
+        const qualityValue = document.getElementById('qualityValue');
+        const sizeCheckboxes = document.querySelectorAll('.size-options input[type="checkbox"]');
+
         let convertedImages = [];
         let zip = new JSZip();
 
@@ -23,6 +29,11 @@ const dropZone = document.getElementById('dropZone');
         dropZone.addEventListener('click', () => imageInput.click());
         imageInput.addEventListener('change', (e) => handleFiles(e.target.files));
 
+        // Settings event listener
+        qualitySlider.addEventListener('input', () => {
+            qualityValue.textContent = qualitySlider.value;
+        });
+
         async function handleFiles(files) {
             if (files.length === 0) {
                 showError('No valid images selected!');
@@ -31,6 +42,12 @@ const dropZone = document.getElementById('dropZone');
 
             loadingDiv.style.display = 'block';
 
+            const selectedSizes = Array.from(sizeCheckboxes)
+                .filter(cb => cb.checked)
+                .map(cb => parseInt(cb.value));
+
+            const quality = parseInt(qualitySlider.value) / 100;
+
             for (const file of Array.from(files)) {
                 if (file.type !== 'image/jpeg' && file.type !== 'image/png') continue;
 
@@ -38,65 +55,84 @@ const dropZone = document.getElementById('dropZone');
                     const reader = new FileReader();
                     const imgData = await new Promise((resolve) => {
                         reader.onload = (event) => {
-                            const img = new Image();
-                            img.onload = () => resolve({ img, name: file.name, originalSize: file.size });
-                            img.src = event.target.result;
+                            const imageElement = new Image();
+                            imageElement.onload = () => resolve({ imageElement, name: file.name, originalSize: file.size });
+                            imageElement.src = event.target.result;
                         };
                         reader.readAsDataURL(file);
                     });
 
-                    const canvas = document.createElement('canvas');
-                    canvas.width = imgData.img.naturalWidth;
-                    canvas.height = imgData.img.naturalHeight;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(imgData.img, 0, 0);
+                    const groupCard = createImageGroupCard(imgData.name, imgData.originalSize);
+                    resultDiv.appendChild(groupCard);
+                    const resultGrid = groupCard.querySelector('.result-grid');
 
-                    const webpBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', 0.8));
-                    const webpSize = webpBlob.size;
-                    const webpUrl = URL.createObjectURL(webpBlob);
-                    const baseName = imgData.name.split('.').slice(0, -1).join('.');
-                    let uniqueName = `${baseName}.webp`;
-                    let counter = 1;
-                    while (convertedImages.some(img => img.name === uniqueName)) {
-                        uniqueName = `${baseName}_${counter}.webp`;
-                        counter++;
+                    for (const size of selectedSizes) {
+                        const { blob, width, height } = await resizeAndConvert(imgData.imageElement, size, quality);
+                        const url = URL.createObjectURL(blob);
+                        const baseName = imgData.name.split('.').slice(0, -1).join('');
+                        const newName = `${baseName}-${width}.webp`;
+
+                        zip.file(newName, blob);
+                        const resultItem = createResultItem(newName, url, blob.size, imgData.originalSize);
+                        resultGrid.appendChild(resultItem);
+                        convertedImages.push({ blob, name: newName, url });
                     }
 
-                    zip.file(uniqueName, webpBlob);
-                    const card = createImageCard(uniqueName, webpUrl, webpSize, imgData.originalSize, webpBlob);
-                    resultDiv.appendChild(card);
-                    convertedImages.push({ blob: webpBlob, name: uniqueName, url: webpUrl });
                 } catch (error) {
                     showError(`Error converting ${file.name}: ${error.message}`);
                 }
             }
 
             loadingDiv.style.display = 'none';
-            if (convertedImages.length > 0) {
+            if (resultDiv.hasChildNodes()) {
                 downloadAllBtn.style.display = 'block';
                 clearAllBtn.style.display = 'block';
             }
             window.currentZip = zip;
         }
 
-        function createImageCard(name, src, size, originalSize, blob) {
+        async function resizeAndConvert(imageElement, targetWidth, quality) {
+            const aspectRatio = imageElement.naturalHeight / imageElement.naturalWidth;
+            const targetHeight = Math.round(targetWidth * aspectRatio);
+
+            const canvas = document.createElement('canvas');
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(imageElement, 0, 0, targetWidth, targetHeight);
+
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', quality));
+            return { blob, width: targetWidth, height: targetHeight };
+        }
+
+        function createImageGroupCard(originalName, originalSize) {
             const card = document.createElement('div');
-            card.className = 'image-card';
-            const sizeDiff = ((size - originalSize) / originalSize * 100).toFixed(1);
-            const color = size < originalSize ? 'green' : 'red';
+            card.className = 'image-group-card';
             card.innerHTML = `
-                <img src="${src}" alt="${name}">
-                <div class="image-info">
-                    <p>${name}</p>
-                    <p>Original: ${formatSize(originalSize)}</p>
-                    <p>WebP: ${formatSize(size)} (<span style="color: ${color};">${sizeDiff}%</span>)</p>
-                </div>
-                <button class="card-download-btn" onclick="downloadSingleImage('${name}', '${src}')">Download</button>
+                <h3>${originalName} (Original: ${formatSize(originalSize)})</h3>
+                <div class="result-grid"></div>
             `;
             return card;
         }
 
-        function downloadSingleImage(name, src) {
+        function createResultItem(name, src, size, originalSize) {
+            const item = document.createElement('div');
+            item.className = 'result-item';
+            const sizeDiff = ((size - originalSize) / originalSize * 100).toFixed(1);
+            const color = size < originalSize ? 'green' : 'red';
+            item.innerHTML = `
+                <img src="${src}" alt="${name}">
+                <div class="result-info">
+                    <p>${name}</p>
+                    <p>New Size: ${formatSize(size)}</p>
+                    <p class="size-comparison" style="color: ${color};">${sizeDiff}%</p>
+                </div>
+                <button class="result-download-btn" onclick="downloadSingleImage('${name}')">Download</button>
+            `;
+            return item;
+        }
+
+        function downloadSingleImage(name) {
             const image = convertedImages.find(img => img.name === name);
             if (!image) {
                 showError('Image not found for download');
