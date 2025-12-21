@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **ZIP Download**: Fixed an issue where the original image size was not being converted or included in the ZIP. Added an "Original Size" checkbox to the settings.
+- **Duplicate Handling**: Added logic to prevent duplicate file generation if the original size matches one of the preset widths.
+
 ## [2.0.0] - 2025-12-21
 
 ### Added

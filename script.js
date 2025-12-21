@@ -44,7 +44,7 @@ const dropZone = document.getElementById('dropZone');
 
             const selectedSizes = Array.from(sizeCheckboxes)
                 .filter(cb => cb.checked)
-                .map(cb => parseInt(cb.value));
+                .map(cb => cb.value);
 
             const quality = parseInt(qualitySlider.value) / 100;
 
@@ -66,11 +66,21 @@ const dropZone = document.getElementById('dropZone');
                     resultDiv.appendChild(groupCard);
                     const resultGrid = groupCard.querySelector('.result-grid');
 
-                    for (const size of selectedSizes) {
-                        const { blob, width, height } = await resizeAndConvert(imgData.imageElement, size, quality);
+                    // Determine unique target widths to avoid duplicate files in ZIP
+                    const targetWidths = new Set();
+                    selectedSizes.forEach(size => {
+                        if (size === 'original') {
+                            targetWidths.add(imgData.imageElement.naturalWidth);
+                        } else {
+                            targetWidths.add(parseInt(size));
+                        }
+                    });
+
+                    for (const width of targetWidths) {
+                        const { blob, width: finalWidth, height } = await resizeAndConvert(imgData.imageElement, width, quality);
                         const url = URL.createObjectURL(blob);
                         const baseName = imgData.name.split('.').slice(0, -1).join('');
-                        const newName = `${baseName}-${width}.webp`;
+                        const newName = `${baseName}-${finalWidth}.webp`;
 
                         zip.file(newName, blob);
                         const resultItem = createResultItem(newName, url, blob.size, imgData.originalSize);

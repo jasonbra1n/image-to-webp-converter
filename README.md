@@ -60,7 +60,7 @@ Embed this converter in your webpage with an iframe:
 5. **Clear**: Use the "Clear All" button to start fresh.
 
 ## Contributing
-Contributions are welcome! Check out the CONTRIBUTING.md file for guidelines and the ROADMAP.md for planned features.
+Contributions are welcome! Check out the [CONTRIBUTING.md](.github/CONTRIBUTING.md) file for guidelines and the [ROADMAP.md](.github/ROADMAP.md) for planned features.
 
 ## License
 This project is licensed under the MIT License—see the [LICENSE](https://github.com/jasonbra1n/image-to-webp-converter/blob/main/LICENSE) file for details.

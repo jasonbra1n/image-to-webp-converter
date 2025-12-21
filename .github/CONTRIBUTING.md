@@ -26,6 +26,7 @@ This is a simple, client-side-only project. No build step is required.
 - **CSS**:
   - Keep all styles within `styles.css`.
   - Use the existing CSS variables for colors to maintain brand consistency.
+  - Refer to the `STYLE_GUIDE.md` for detailed color and component guidelines.
   - Use descriptive class names (e.g., `.image-group-card`, `.result-item`).
 
 ## Commit Messages
