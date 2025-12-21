@@ -1,3 +1,6 @@
+[![License: MIT](https://img.shields.io/github/license/jasonbra1n/image-to-webp-converter?style=for-the-badge&color=8146ff)](LICENSE)
+[![Developed with Gemini](https://img.shields.io/badge/Developed%20with-Gemini-8146FF?style=for-the-badge&logo=google-gemini&logoColor=white)](https://deepmind.google/technologies/gemini/)
+
 # Image to WebP Converter
 
 A powerful, client-side tool that converts JPG/PNG images into multiple, responsive-ready WebP formats. Built with a focus on workflow efficiency and SEO best practices, this tool allows you to generate different sizes for `srcset` implementation from a single source image, all within your browser.
