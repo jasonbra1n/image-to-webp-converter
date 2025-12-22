@@ -22,6 +22,8 @@ Try it out here: [https://jasonbra1n.github.io/image-to-webp-converter/](https:/
 - **Custom Width Input**: Specify your own comma-separated list of widths for conversion.
 - **SEO & Performance Focused**: Includes educational resources on improving Core Web Vitals with responsive images.
 - **Multi-Image Support**: Process one or many images via drag-and-drop or file selection.
+- **Offline Capable**: Works entirely offline with local dependencies, perfect for secure or low-connectivity environments.
+- **Clean Interface**: Settings are tucked away in a modal overlay to keep the workspace clutter-free.
 - **Client-Side Processing**: All conversions happen in the browser, ensuring privacy and eliminating server dependency.
 - **Grouped Output**: Generated images are neatly grouped by their original source file.
 - **Export Options**: Export file lists in JSON, XML, Markdown, or HTML formats, and get a `manifest.json` automatically in your ZIP download.
@@ -59,7 +61,7 @@ Embed this converter in your webpage with an iframe:
 - **Customization**: Fork the repo to tweak styles, quality settings, or add features.
 
 ## Usage
-1. **Configure Settings**: Select your target output widths and adjust the quality slider.
+1. **Configure Settings**: Click the **Gear Icon** to open the settings overlay. Select your target output widths, aspect ratios, and adjust the quality slider.
 2. **Upload Images**: Drag JPG/PNG images into the drop zone or click to select files.
 3. **Review Results**: Watch as multiple WebP versions are generated for each source image.
 4. **Download**: Download individual files or click "Download All as ZIP" to get a complete archive.

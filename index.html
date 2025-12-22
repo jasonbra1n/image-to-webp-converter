@@ -34,7 +34,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             </button>
         </div>
-        <p style="text-align: center; margin-top: -15px; margin-bottom: 20px;">Generate multiple WebP sizes for your `srcset` attributes and improve site performance.</p>
+        <p style="text-align: center; margin-top: -15px; margin-bottom: 20px;">A free, private, client-side tool to convert images to WebP. Generate responsive sizes for `srcset`, crop to aspect ratios, and improve site performance.</p>
 
         <input type="file" id="imageInput" accept="image/jpeg,image/png" multiple style="display: none;">
         <div id="dropZone">Drag images here or click to select</div>
@@ -114,10 +114,25 @@
         </div>
 
         <div class="seo-content-box">
-            <h2>Improve Your Site's Performance with Responsive Images</h2>
+            <h2>How to Use This Image Converter</h2>
+            <ol style="margin-bottom: 1.5rem; padding-left: 1.5rem;">
+                <li style="margin-bottom: 0.5rem;"><strong>Configure Settings:</strong> Click the gear icon (top right) to select output widths (e.g., 480px, 800px), set specific aspect ratios (like 16:9 or 1:1), and adjust quality.</li>
+                <li style="margin-bottom: 0.5rem;"><strong>Upload Images:</strong> Drag and drop your JPG or PNG files into the box above.</li>
+                <li style="margin-bottom: 0.5rem;"><strong>Download:</strong> Get your optimized WebP images individually or as a ZIP file. The ZIP automatically includes a `manifest.json` with metadata for all generated files.</li>
+                <li style="margin-bottom: 0.5rem;"><strong>Export (Optional):</strong> Click the "Export File List" button to copy or save a list of the generated files in various formats (JSON, HTML, etc.).</li>
+            </ol>
+
+            <h3>Why Use This Tool?</h3>
+            <ul style="margin-bottom: 1.5rem; padding-left: 1.5rem;">
+                <li style="margin-bottom: 0.5rem;"><strong>100% Client-Side & Private:</strong> Your images never leave your browser. Processing happens locally on your device, ensuring maximum privacy and security.</li>
+                <li style="margin-bottom: 0.5rem;"><strong>Offline Capable:</strong> This tool works without an internet connection once loaded.</li>
+                <li style="margin-bottom: 0.5rem;"><strong>SEO Optimized:</strong> Generates lightweight WebP files and responsive sizes to improve Core Web Vitals and page load speeds.</li>
+            </ul>
+
+            <h3>Improve Your Site's Performance with Responsive Images</h3>
             <p>Serving a single, large image to all users is inefficient. Mobile users on slow connections are forced to download unnecessarily large files, while high-resolution desktop users might see a blurry image. This is where the `srcset` attribute comes in.</p>
-            <p>By providing the browser with multiple image sizes, you allow it to choose the most optimal version based on the user's screen size and resolution. This tool automates the tedious process of resizing and converting your source images into multiple WebP files, ready to be used in your HTML.</p>
-            <h3>Example `srcset` Usage:</h3>
+            <p>By providing the browser with multiple image sizes, you allow it to choose the most optimal version based on the user's screen size and resolution. This tool automates the tedious process of resizing, cropping, and converting your source images into multiple WebP files, ready to be used in your HTML.</p>
+            <h4>Example `srcset` Usage:</h4>
             <pre><code>&lt;img src="image-800.webp"
      srcset="image-480.webp 480w,
              image-800.webp 800w,
