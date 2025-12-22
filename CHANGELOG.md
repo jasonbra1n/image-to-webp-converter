@@ -7,9 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2025-12-21
+
+### Added
+- **Developer Workflow**: Created `.gemini/PROMPTS_GUIDE.md` to provide standardized prompts for AI-assisted development.
+
+### Changed
+- **Dependencies**: Moved JSZip and FileSaver.js from CDN to a local `lib/` folder to enable offline functionality.
+
 ### Fixed
-- **ZIP Download**: Fixed an issue where the original image size was not being converted or included in the ZIP. Added an "Original Size" checkbox to the settings.
+- **ZIP Download**: Fixed an issue where the original image size was not being converted or included in the ZIP. Added an "Original Size" checkbox.
 - **Duplicate Handling**: Added logic to prevent duplicate file generation if the original size matches one of the preset widths.
+- **Original Size Processing**: Ensured the "Original Size" option correctly generates a download card and is included in the final ZIP file.
+- **Upscaling**: The converter will no longer upscale images that are smaller than a selected preset width.
+- **UI Clarity**: Added an "(Original)" label to the output card that matches the source image's dimensions to reduce confusion.
+- **Documentation**: Corrected inconsistencies and broken links across all documentation files (`README.md`, `CONTRIBUTING.md`).
+
 
 ## [2.0.0] - 2025-12-21
 

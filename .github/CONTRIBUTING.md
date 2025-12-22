@@ -4,7 +4,7 @@ Thank you for your interest in improving the Image to WebP Converter!
 
 ## Tech Stack
 - **Frontend**: HTML5, CSS3, Vanilla JavaScript (ES6+)
-- **Dependencies**: JSZip, FileSaver.js (loaded via CDN)
+- **Dependencies**: JSZip, FileSaver.js (local in `lib/` folder)
 
 ## Development Workflow
 
@@ -26,8 +26,7 @@ This is a simple, client-side-only project. No build step is required.
 - **CSS**:
   - Keep all styles within `styles.css`.
   - Use the existing CSS variables for colors to maintain brand consistency.
-  - Refer to the `STYLE_GUIDE.md` for detailed color and component guidelines.
-  - Use descriptive class names (e.g., `.image-group-card`, `.result-item`).
+  - Refer to the STYLE_GUIDE.md for detailed color and component guidelines.
 
 ## Commit Messages
 

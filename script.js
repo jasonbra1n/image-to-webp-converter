@@ -66,13 +66,19 @@ const dropZone = document.getElementById('dropZone');
                     resultDiv.appendChild(groupCard);
                     const resultGrid = groupCard.querySelector('.result-grid');
 
-                    // Determine unique target widths to avoid duplicate files in ZIP
+                    // Create a set of unique widths to generate, preventing upscaling.
                     const targetWidths = new Set();
+                    const originalWidth = imgData.imageElement.naturalWidth;
+
                     selectedSizes.forEach(size => {
                         if (size === 'original') {
-                            targetWidths.add(imgData.imageElement.naturalWidth);
+                            targetWidths.add(originalWidth);
                         } else {
-                            targetWidths.add(parseInt(size));
+                            const presetWidth = parseInt(size);
+                            // Only add preset widths that are smaller or equal to the original.
+                            if (presetWidth <= originalWidth) {
+                                targetWidths.add(presetWidth);
+                            }
                         }
                     });
 
@@ -83,7 +89,8 @@ const dropZone = document.getElementById('dropZone');
                         const newName = `${baseName}-${finalWidth}.webp`;
 
                         zip.file(newName, blob);
-                        const resultItem = createResultItem(newName, url, blob.size, imgData.originalSize);
+                        const isOriginal = finalWidth === originalWidth;
+                        const resultItem = createResultItem(newName, url, blob.size, imgData.originalSize, finalWidth, height, isOriginal);
                         resultGrid.appendChild(resultItem);
                         convertedImages.push({ blob, name: newName, url });
                     }
@@ -125,16 +132,18 @@ const dropZone = document.getElementById('dropZone');
             return card;
         }
 
-        function createResultItem(name, src, size, originalSize) {
+        function createResultItem(name, src, size, originalSize, width, height, isOriginal) {
             const item = document.createElement('div');
             item.className = 'result-item';
             const sizeDiff = ((size - originalSize) / originalSize * 100).toFixed(1);
             const color = size < originalSize ? 'green' : 'red';
+            const originalLabel = isOriginal ? ' <strong>(Original)</strong>' : '';
             item.innerHTML = `
                 <img src="${src}" alt="${name}">
                 <div class="result-info">
                     <p>${name}</p>
                     <p>New Size: ${formatSize(size)}</p>
+                    <p>Dimensions: ${width}x${height}${originalLabel}</p>
                     <p class="size-comparison" style="color: ${color};">${sizeDiff}%</p>
                 </div>
                 <button class="result-download-btn" onclick="downloadSingleImage('${name}')">Download</button>

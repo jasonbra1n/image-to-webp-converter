@@ -37,7 +37,7 @@ To run this converter locally:
 - [JSZip](https://stuk.github.io/jszip/) (v3.10.1): For ZIP file creation.
 - [FileSaver.js](https://github.com/eligrey/FileSaver.js/) (v2.0.5): For triggering ZIP downloads.
 
-Included via CDN—no local installation needed.
+Included in the `lib/` directory for offline support.
 
 ## Embedding in Your Website
 
