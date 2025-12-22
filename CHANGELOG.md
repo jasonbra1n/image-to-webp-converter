@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.1] - 2025-12-22
+
+### Fixed
+- **ZIP Download**: Fixed a critical bug where clicking "Download All as ZIP" failed due to a `saveAs` reference error. Replaced the dependency on `FileSaver.js` with native browser APIs for ZIP and Export downloads.
+
+### Refactored
+- **Event Handling**: Removed inline `onclick` attributes from `index.html` and moved all event binding to `script.js` for better separation of concerns.
+
 ## [2.2.0] - 2025-12-22
 
 ### Added

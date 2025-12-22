@@ -43,7 +43,6 @@ To run this converter locally:
 ## Dependencies
 
 - [JSZip](https://stuk.github.io/jszip/) (v3.10.1): For ZIP file creation.
-- [FileSaver.js](https://github.com/eligrey/FileSaver.js/) (v2.0.5): For triggering ZIP downloads.
 
 Included in the `lib/` directory for offline support.
 

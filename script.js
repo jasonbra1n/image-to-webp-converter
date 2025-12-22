@@ -35,6 +35,11 @@ const dropZone = document.getElementById('dropZone');
         imageInput.addEventListener('change', (e) => handleFiles(e.target.files));
         settingsBtn.addEventListener('click', openSettingsModal);
 
+        // Main action buttons
+        downloadAllBtn.addEventListener('click', downloadAllAsZip);
+        clearAllBtn.addEventListener('click', clearAll);
+        exportListBtn.addEventListener('click', openExportModal);
+
         // Settings event listener
         qualitySlider.addEventListener('input', () => {
             qualityValue.textContent = qualitySlider.value;
@@ -146,7 +151,6 @@ const dropZone = document.getElementById('dropZone');
                 exportListBtn.style.display = 'block';
                 clearAllBtn.style.display = 'block';
             }
-            window.currentZip = zip;
         }
 
         function getSelectedAspectRatios() {
@@ -272,17 +276,32 @@ const dropZone = document.getElementById('dropZone');
         }
 
         function downloadAllAsZip() {
-            if (!window.currentZip || convertedImages.length === 0) return;
-            window.currentZip.generateAsync({ type: 'blob' }).then(blob => {
-                saveAs(blob, 'webp_images.zip');
-            });
+            if (!zip || convertedImages.length === 0) return;
+            zip.generateAsync({ type: 'blob' })
+                .then(blob => {
+                    // The call to saveAs() was causing a 'saveAs is not defined' ReferenceError.
+                    // This can happen if FileSaver.js fails to load or initialize correctly.
+                    // To make the download more robust, we'll use the same anchor-tag-trick
+                    // used by downloadSingleImage(), which relies on native browser APIs.
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'webp_images.zip';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url); // Clean up the object URL.
+                })
+                .catch(err => {
+                    console.error("Error generating ZIP:", err);
+                    showError(`Error generating ZIP file: ${err.message}`);
+                });
         }
 
         function clearAll() {
             convertedImages.forEach(img => URL.revokeObjectURL(img.url));
             convertedImages = [];
             zip = new JSZip();
-            window.currentZip = zip;
             resultDiv.innerHTML = '';
             downloadAllBtn.style.display = 'none';
             exportListBtn.style.display = 'none';
@@ -412,5 +431,14 @@ const dropZone = document.getElementById('dropZone');
             const content = exportPreview.value;
             const extension = format === 'markdown' ? 'md' : format;
             const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-            saveAs(blob, `file-list.${extension}`);
+            
+            // Using the anchor-tag-trick for robustness, consistent with other download functions.
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `file-list.${extension}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         }

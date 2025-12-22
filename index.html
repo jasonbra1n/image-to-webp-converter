@@ -8,7 +8,6 @@
     <meta name="keywords" content="webp converter, srcset generator, responsive images, image optimization, picture element, html, web development tool, core web vitals, performance">
     <link rel="canonical" href="https://jasonbra1n.github.io/image-to-webp-converter/" />
     <script src="lib/jszip.min.js"></script>
-    <script src="lib/FileSaver.min.js"></script>
     <link rel="stylesheet" href="styles.css">
     <script type="application/ld+json">
     {
@@ -42,9 +41,9 @@
         <div id="loading">Converting images... Please wait.</div>
         <div id="result"></div>
         <div id="actionButtons">
-            <button id="downloadAllBtn" onclick="downloadAllAsZip()">Download All as ZIP</button> 
-            <button id="exportListBtn" onclick="openExportModal()">Export File List</button>
-            <button id="clearAllBtn" onclick="clearAll()">Clear All</button>
+            <button id="downloadAllBtn">Download All as ZIP</button>
+            <button id="exportListBtn">Export File List</button>
+            <button id="clearAllBtn">Clear All</button>
         </div>
 
         <div id="settingsModal" class="modal">

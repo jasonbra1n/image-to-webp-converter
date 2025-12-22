@@ -4,7 +4,7 @@ Thank you for your interest in improving the Image to WebP Converter!
 
 ## Tech Stack
 - **Frontend**: HTML5, CSS3, Vanilla JavaScript (ES6+)
-- **Dependencies**: JSZip, FileSaver.js (local in `lib/` folder)
+- **Dependencies**: JSZip (local in `lib/` folder)
 
 ## Development Workflow
 
