@@ -1,5 +1,8 @@
 [![License: MIT](https://img.shields.io/github/license/jasonbra1n/image-to-webp-converter?style=for-the-badge&color=8146ff)](LICENSE)
 [![Developed with Gemini](https://img.shields.io/badge/Developed%20with-Gemini-8146FF?style=for-the-badge&logo=google-gemini&logoColor=white)](https://deepmind.google/technologies/gemini/)
+![HTML5](https://img.shields.io/badge/HTML5-8146FF?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-8146FF?style=for-the-badge&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-8146FF?style=for-the-badge&logo=javascript&logoColor=white)
 
 # Image to WebP Converter
 
@@ -15,10 +18,13 @@ Try it out here: [https://jasonbra1n.github.io/image-to-webp-converter/](https:/
 
 - **Responsive Size Generation**: Automatically generates multiple widths (e.g., 480px, 800px, 1200px) for perfect `srcset` implementation.
 - **Adjustable Quality**: Fine-tune file size vs. visual fidelity with a real-time quality slider.
+- **Force Aspect Ratio**: Crop or fit images to specific aspect ratios (Square, 16:9, etc.) with Cover, Contain, and Fill modes.
+- **Custom Width Input**: Specify your own comma-separated list of widths for conversion.
 - **SEO & Performance Focused**: Includes educational resources on improving Core Web Vitals with responsive images.
 - **Multi-Image Support**: Process one or many images via drag-and-drop or file selection.
 - **Client-Side Processing**: All conversions happen in the browser, ensuring privacy and eliminating server dependency.
 - **Grouped Output**: Generated images are neatly grouped by their original source file.
+- **Export Options**: Export file lists in JSON, XML, Markdown, or HTML formats, and get a `manifest.json` automatically in your ZIP download.
 - **Flexible Downloads**: Download individual files or a complete ZIP archive.
 
 ## Installation

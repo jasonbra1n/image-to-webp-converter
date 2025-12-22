@@ -4,11 +4,16 @@ const dropZone = document.getElementById('dropZone');
         const loadingDiv = document.getElementById('loading');
         const downloadAllBtn = document.getElementById('downloadAllBtn');
         const clearAllBtn = document.getElementById('clearAllBtn');
+        const exportListBtn = document.getElementById('exportListBtn');
+        const settingsBtn = document.getElementById('settingsBtn');
 
         // Settings
         const qualitySlider = document.getElementById('quality');
         const qualityValue = document.getElementById('qualityValue');
         const sizeCheckboxes = document.querySelectorAll('.size-options input[type="checkbox"]');
+        const customWidthsInput = document.getElementById('customWidths');
+        const fitModeSelect = document.getElementById('fitMode');
+        const customAspectRatioInput = document.getElementById('customAspectRatio');
 
         let convertedImages = [];
         let zip = new JSZip();
@@ -28,6 +33,7 @@ const dropZone = document.getElementById('dropZone');
         });
         dropZone.addEventListener('click', () => imageInput.click());
         imageInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        settingsBtn.addEventListener('click', openSettingsModal);
 
         // Settings event listener
         qualitySlider.addEventListener('input', () => {
@@ -45,6 +51,10 @@ const dropZone = document.getElementById('dropZone');
             const selectedSizes = Array.from(sizeCheckboxes)
                 .filter(cb => cb.checked)
                 .map(cb => cb.value);
+
+            const customWidthsValue = customWidthsInput.value;
+            const selectedRatios = getSelectedAspectRatios();
+            const fitMode = fitModeSelect.value;
 
             const quality = parseInt(qualitySlider.value) / 100;
 
@@ -82,17 +92,37 @@ const dropZone = document.getElementById('dropZone');
                         }
                     });
 
-                    for (const width of targetWidths) {
-                        const { blob, width: finalWidth, height } = await resizeAndConvert(imgData.imageElement, width, quality);
-                        const url = URL.createObjectURL(blob);
-                        const baseName = imgData.name.split('.').slice(0, -1).join('');
-                        const newName = `${baseName}-${finalWidth}.webp`;
+                    if (customWidthsValue) {
+                        const customWidths = customWidthsValue
+                            .split(',')
+                            .map(w => parseInt(w.trim()))
+                            .filter(w => !isNaN(w) && w > 0);
 
-                        zip.file(newName, blob);
-                        const isOriginal = finalWidth === originalWidth;
-                        const resultItem = createResultItem(newName, url, blob.size, imgData.originalSize, finalWidth, height, isOriginal);
-                        resultGrid.appendChild(resultItem);
-                        convertedImages.push({ blob, name: newName, url });
+                        customWidths.forEach(width => {
+                            if (width <= originalWidth) {
+                                targetWidths.add(width);
+                            }
+                        });
+                    }
+
+                    for (const width of targetWidths) {
+                        for (const ratio of selectedRatios) {
+                            const { blob, width: finalWidth, height } = await resizeAndConvert(imgData.imageElement, width, quality, ratio, fitMode);
+                            const url = URL.createObjectURL(blob);
+                            const baseName = imgData.name.split('.').slice(0, -1).join('');
+                            
+                            // Construct filename: name-800.webp or name-800-16x9.webp
+                            let ratioSuffix = ratio === 'original' ? '' : `-${ratio.replace(':','x')}`;
+                            const newName = `${baseName}-${finalWidth}${ratioSuffix}.webp`;
+
+                            zip.file(newName, blob);
+                            // Mark as "Original" only if it's the original width AND original ratio
+                            const isOriginal = (finalWidth === originalWidth) && (ratio === 'original');
+                            
+                            const resultItem = createResultItem(newName, url, blob.size, imgData.originalSize, finalWidth, height, isOriginal);
+                            resultGrid.appendChild(resultItem);
+                            convertedImages.push({ blob, name: newName, url, width: finalWidth, height, size: blob.size, originalName: imgData.name });
+                        }
                     }
 
                 } catch (error) {
@@ -100,26 +130,102 @@ const dropZone = document.getElementById('dropZone');
                 }
             }
 
+            // Add manifest.json to the ZIP
+            const manifest = convertedImages.map(img => ({
+                name: img.name,
+                width: img.width,
+                height: img.height,
+                size: img.size,
+                originalName: img.originalName
+            }));
+            zip.file('manifest.json', JSON.stringify(manifest, null, 2));
+
             loadingDiv.style.display = 'none';
             if (resultDiv.hasChildNodes()) {
                 downloadAllBtn.style.display = 'block';
+                exportListBtn.style.display = 'block';
                 clearAllBtn.style.display = 'block';
             }
             window.currentZip = zip;
         }
 
-        async function resizeAndConvert(imageElement, targetWidth, quality) {
-            const aspectRatio = imageElement.naturalHeight / imageElement.naturalWidth;
-            const targetHeight = Math.round(targetWidth * aspectRatio);
+        function getSelectedAspectRatios() {
+            const ratios = [];
+            document.querySelectorAll('.aspect-ratio-cb:checked').forEach(cb => ratios.push(cb.value));
+            const custom = customAspectRatioInput.value.trim();
+            if (custom) {
+                custom.split(',').forEach(r => {
+                    if (r.includes(':')) ratios.push(r.trim());
+                });
+            }
+            if (ratios.length === 0) ratios.push('original');
+            return [...new Set(ratios)];
+        }
+
+        function getRatioValue(ratioStr) {
+            if (!ratioStr || ratioStr === 'original') return null;
+            const parts = ratioStr.split(':');
+            if (parts.length === 2) {
+                const w = parseFloat(parts[0]);
+                const h = parseFloat(parts[1]);
+                if (!isNaN(w) && !isNaN(h) && h !== 0) return w / h;
+            }
+            return null;
+        }
+
+        async function resizeAndConvert(imageElement, targetWidth, quality, targetRatioStr, fitMode) {
+            const srcW = imageElement.naturalWidth;
+            const srcH = imageElement.naturalHeight;
+            const targetRatio = getRatioValue(targetRatioStr);
+
+            let canvasW, canvasH;
+            
+            if (targetRatio) {
+                canvasW = targetWidth;
+                canvasH = Math.round(targetWidth / targetRatio);
+            } else {
+                // Original Ratio
+                const ratio = srcW / srcH;
+                canvasW = targetWidth;
+                canvasH = Math.round(targetWidth / ratio);
+            }
 
             const canvas = document.createElement('canvas');
-            canvas.width = targetWidth;
-            canvas.height = targetHeight;
+            canvas.width = canvasW;
+            canvas.height = canvasH;
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(imageElement, 0, 0, targetWidth, targetHeight);
+            ctx.imageSmoothingQuality = 'high';
+
+            // Draw logic
+            if (!targetRatio) {
+                ctx.drawImage(imageElement, 0, 0, canvasW, canvasH);
+            } else {
+                // Calculate Source Crop (Cover mode default for now, or implement fitMode logic)
+                let sx = 0, sy = 0, sWidth = srcW, sHeight = srcH;
+                if (fitMode === 'cover') {
+                    const srcRatio = srcW / srcH;
+                    if (srcRatio > targetRatio) { // Source is wider
+                        sWidth = srcH * targetRatio; sx = (srcW - sWidth) / 2;
+                    } else { // Source is taller
+                        sHeight = srcW / targetRatio; sy = (srcH - sHeight) / 2;
+                    }
+                    ctx.drawImage(imageElement, sx, sy, sWidth, sHeight, 0, 0, canvasW, canvasH);
+                } else if (fitMode === 'fill') {
+                    ctx.drawImage(imageElement, 0, 0, canvasW, canvasH);
+                } else if (fitMode === 'contain') {
+                    // Fill background white (optional)
+                    // ctx.fillStyle = 'white'; ctx.fillRect(0,0,canvasW,canvasH);
+                    const scale = Math.min(canvasW / srcW, canvasH / srcH);
+                    const dW = srcW * scale;
+                    const dH = srcH * scale;
+                    const dx = (canvasW - dW) / 2;
+                    const dy = (canvasH - dH) / 2;
+                    ctx.drawImage(imageElement, 0, 0, srcW, srcH, dx, dy, dW, dH);
+                }
+            }
 
             const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', quality));
-            return { blob, width: targetWidth, height: targetHeight };
+            return { blob, width: canvasW, height: canvasH };
         }
 
         function createImageGroupCard(originalName, originalSize) {
@@ -179,6 +285,7 @@ const dropZone = document.getElementById('dropZone');
             window.currentZip = zip;
             resultDiv.innerHTML = '';
             downloadAllBtn.style.display = 'none';
+            exportListBtn.style.display = 'none';
             clearAllBtn.style.display = 'none';
         }
 
@@ -193,4 +300,117 @@ const dropZone = document.getElementById('dropZone');
             errorDiv.style.display = 'block';
             errorDiv.textContent = message;
             setTimeout(() => errorDiv.style.display = 'none', 5000);
+        }
+
+        // Export Modal Functions
+        const exportModal = document.getElementById('exportModal');
+        const settingsModal = document.getElementById('settingsModal');
+        const exportPreview = document.getElementById('exportPreview');
+        const exportFormat = document.getElementById('exportFormat');
+
+        function openExportModal() {
+            updateExportPreview();
+            exportModal.style.display = 'block';
+        }
+
+        function closeExportModal() {
+            exportModal.style.display = 'none';
+        }
+
+        function openSettingsModal() {
+            settingsModal.style.display = 'block';
+        }
+
+        function closeSettingsModal() {
+            settingsModal.style.display = 'none';
+        }
+
+        function resetSettings() {
+            // Reset Sizes
+            document.getElementById('sizeOriginal').checked = true;
+            document.getElementById('size480').checked = true;
+            document.getElementById('size800').checked = true;
+            document.getElementById('size1200').checked = true;
+            customWidthsInput.value = '';
+
+            // Reset Quality
+            qualitySlider.value = 80;
+            qualityValue.textContent = '80';
+
+            // Reset Aspect Ratios
+            document.querySelectorAll('.aspect-ratio-cb').forEach(cb => cb.checked = (cb.value === 'original'));
+            customAspectRatioInput.value = '';
+            fitModeSelect.value = 'cover';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == exportModal) {
+                closeExportModal();
+            } else if (event.target == settingsModal) {
+                closeSettingsModal();
+            }
+        }
+
+        function updateExportPreview() {
+            const format = exportFormat.value;
+            let content = '';
+
+            if (format === 'json') {
+                const data = convertedImages.map(img => ({
+                    name: img.name,
+                    width: img.width,
+                    height: img.height,
+                    size: img.size,
+                    originalName: img.originalName
+                }));
+                content = JSON.stringify(data, null, 2);
+            } else if (format === 'xml') {
+                content = '<?xml version="1.0" encoding="UTF-8"?>\n<files>\n';
+                convertedImages.forEach(img => {
+                    content += `  <file name="${img.name}" width="${img.width}" height="${img.height}" size="${img.size}" originalName="${img.originalName}" />\n`;
+                });
+                content += '</files>';
+            } else if (format === 'markdown') {
+                convertedImages.forEach(img => {
+                    content += `!${img.name}\n`;
+                });
+            } else if (format === 'html') {
+                // Group by original name to create srcset snippets
+                const groups = {};
+                convertedImages.forEach(img => {
+                    if (!groups[img.originalName]) groups[img.originalName] = [];
+                    groups[img.originalName].push(img);
+                });
+
+                for (const originalName in groups) {
+                    const imgs = groups[originalName].sort((a, b) => a.width - b.width);
+                    const largest = imgs[imgs.length - 1];
+                    const srcset = imgs.map(img => `${img.name} ${img.width}w`).join(',\n         ');
+                    
+                    content += `<!-- ${originalName} -->\n`;
+                    content += `<img src="${largest.name}"\n     srcset="${srcset}"\n     alt="${originalName}">\n\n`;
+                }
+            }
+
+            exportPreview.value = content;
+        }
+
+        function copyExportToClipboard() {
+            exportPreview.select();
+            exportPreview.setSelectionRange(0, 99999); // For mobile devices
+            navigator.clipboard.writeText(exportPreview.value).then(() => {
+                const originalText = document.querySelector('.modal-actions button:first-child').textContent;
+                document.querySelector('.modal-actions button:first-child').textContent = 'Copied!';
+                setTimeout(() => {
+                    document.querySelector('.modal-actions button:first-child').textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        function downloadExportFile() {
+            const format = exportFormat.value;
+            const content = exportPreview.value;
+            const extension = format === 'markdown' ? 'md' : format;
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            saveAs(blob, `file-list.${extension}`);
         }

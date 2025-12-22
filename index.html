@@ -28,25 +28,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>Responsive Image & WebP Converter</h1>
-        <p style="text-align: center; margin-top: -15px; margin-bottom: 20px;">Generate multiple WebP sizes for your `srcset` attributes and improve site performance.</p>
-
-        <div class="settings-container">
-            <h4>Settings</h4>
-            <div class="settings-grid">
-                <div class="size-options">
-                    <label><strong>Output Sizes (Width):</strong></label>
-                    <label><input type="checkbox" id="sizeOriginal" value="original" checked> Original Size</label>
-                    <label><input type="checkbox" id="size480" value="480" checked> 480px (Mobile)</label>
-                    <label><input type="checkbox" id="size800" value="800" checked> 800px (Tablet/Card)</label>
-                    <label><input type="checkbox" id="size1200" value="1200" checked> 1200px (Desktop)</label>
-                </div>
-                <div class="quality-slider">
-                    <label for="quality"><strong>WebP Quality:</strong> <span id="qualityValue">80</span>%</label>
-                    <input type="range" id="quality" min="10" max="100" value="80">
-                </div>
-            </div>
+        <div class="header-row">
+            <h1>Responsive Image & WebP Converter</h1>
+            <button id="settingsBtn" title="Settings" aria-label="Settings">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
         </div>
+        <p style="text-align: center; margin-top: -15px; margin-bottom: 20px;">Generate multiple WebP sizes for your `srcset` attributes and improve site performance.</p>
 
         <input type="file" id="imageInput" accept="image/jpeg,image/png" multiple style="display: none;">
         <div id="dropZone">Drag images here or click to select</div>
@@ -55,7 +43,74 @@
         <div id="result"></div>
         <div id="actionButtons">
             <button id="downloadAllBtn" onclick="downloadAllAsZip()">Download All as ZIP</button> 
+            <button id="exportListBtn" onclick="openExportModal()">Export File List</button>
             <button id="clearAllBtn" onclick="clearAll()">Clear All</button>
+        </div>
+
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeSettingsModal()">&times;</span>
+                <h3>Settings</h3>
+                <div class="settings-grid">
+                    <div class="size-options">
+                        <label><strong>Output Sizes (Width):</strong></label>
+                        <label><input type="checkbox" id="sizeOriginal" value="original" checked> Original Size</label>
+                        <label><input type="checkbox" id="size480" value="480" checked> 480px (Mobile)</label>
+                        <label><input type="checkbox" id="size800" value="800" checked> 800px (Tablet/Card)</label>
+                        <label><input type="checkbox" id="size1200" value="1200" checked> 1200px (Desktop)</label>
+                    </div>
+                    <div class="custom-width-options">
+                        <label for="customWidths"><strong>Custom Widths (comma-separated):</strong></label>
+                        <input type="text" id="customWidths" placeholder="e.g., 500, 1024, 1920">
+                    </div>
+                    <div class="quality-slider">
+                        <label for="quality"><strong>WebP Quality:</strong> <span id="qualityValue">80</span>%</label>
+                        <input type="range" id="quality" min="10" max="100" value="80">
+                    </div>
+                    <div class="aspect-ratio-options">
+                        <label><strong>Aspect Ratios:</strong></label>
+                        <label><input type="checkbox" class="aspect-ratio-cb" value="original" checked> Original</label>
+                        <label><input type="checkbox" class="aspect-ratio-cb" value="1:1"> 1:1 (Square)</label>
+                        <label><input type="checkbox" class="aspect-ratio-cb" value="16:9"> 16:9 (HD)</label>
+                        <label><input type="checkbox" class="aspect-ratio-cb" value="4:3"> 4:3 (SD)</label>
+                        <label><input type="checkbox" class="aspect-ratio-cb" value="9:16"> 9:16 (Story)</label>
+                        <input type="text" id="customAspectRatio" placeholder="Custom (e.g. 21:9)" style="margin-top: 5px; width: 100%; box-sizing: border-box; padding: 5px;">
+                    </div>
+                    <div class="fit-mode-options">
+                        <label for="fitMode"><strong>Fit Mode:</strong></label>
+                        <select id="fitMode" style="width: 100%; padding: 5px;">
+                            <option value="cover">Cover (Crop)</option>
+                            <option value="contain">Contain (Letterbox)</option>
+                            <option value="fill">Fill (Stretch)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-actions" style="margin-top: 20px; justify-content: space-between;">
+                    <button onclick="resetSettings()" style="background-color: var(--color-text-medium);">Reset to Defaults</button>
+                    <button onclick="closeSettingsModal()">Done</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="exportModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeExportModal()">&times;</span>
+                <h3>Export File List</h3>
+                <div class="export-controls">
+                    <label for="exportFormat">Format:</label>
+                    <select id="exportFormat" onchange="updateExportPreview()">
+                        <option value="json">JSON</option>
+                        <option value="xml">XML</option>
+                        <option value="markdown">Markdown</option>
+                        <option value="html">HTML (srcset)</option>
+                    </select>
+                </div>
+                <textarea id="exportPreview" readonly></textarea>
+                <div class="modal-actions">
+                    <button onclick="copyExportToClipboard()">Copy to Clipboard</button>
+                    <button onclick="downloadExportFile()">Save as File</button>
+                </div>
+            </div>
         </div>
 
         <div class="seo-content-box">
@@ -72,6 +127,10 @@
             <p>This approach significantly improves your <a href="https://web.dev/vitals/" target="_blank" rel="noopener noreferrer">Core Web Vitals</a>, leading to better user experience and higher search engine rankings.</p>
         </div>
     </div>
+
+    <footer class="site-footer">
+        <p>&copy; 2025 Jason Brain | <a href="https://github.com/jasonbra1n/image-to-webp-converter" target="_blank" rel="noopener noreferrer">View on GitHub</a></p>
+    </footer>
 
     <script src="script.js"></script>
 </body>

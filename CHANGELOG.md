@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2025-12-22
+
+### Added
+- **UI**: Added a site-wide footer with copyright and a link to the GitHub repository.
+- **UX**: Moved the settings panel into a modal overlay (gear icon) to declutter the main interface.
+- **Custom Widths**: Added an input field to allow users to specify custom, comma-separated output widths.
+- **Force Aspect Ratio**: Added settings to force output images into specific aspect ratios (e.g., 1:1, 16:9) with options for Cover, Contain, or Fill fit modes.
+- **Export File List**: Added a feature to export the list of generated files as JSON, XML, Markdown, or HTML.
+- **ZIP Manifest**: The downloaded ZIP file now automatically includes a `manifest.json` file listing all generated images and their metadata.
+- **Docs**: Added tech stack badges to the README.
+
 ## [2.1.0] - 2025-12-21
 
 ### Added
